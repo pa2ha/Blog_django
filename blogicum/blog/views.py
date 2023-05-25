@@ -65,8 +65,10 @@ class edit_profile(UpdateView):
             return redirect('login')
 
         return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
-        return reverse('blog:profile', kwargs={'username': self.request.user.username})
+        return reverse('blog:profile',
+                       kwargs={'username': self.request.user.username})
 
 
 class post_detail(DetailView):
