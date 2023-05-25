@@ -158,7 +158,7 @@ class category_posts(ListView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class profile_view(ListView):
+class profile(ListView):
     model = Post
     template_name = 'blog/profile.html'
     paginate_by = 10
