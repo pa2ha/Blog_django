@@ -58,6 +58,7 @@ class edit_profile(UpdateView):
     model = User
     template_name = 'blog/profile.html'
     fields = '__all__'
+    success_url = reverse_lazy('profile')
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -157,7 +158,7 @@ class category_posts(ListView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class profile_view(LoginRequiredMixin, ListView):
+class profile_view(ListView):
     model = Post
     template_name = 'blog/profile.html'
     paginate_by = 10
