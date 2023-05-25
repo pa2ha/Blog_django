@@ -15,7 +15,7 @@ class PostForm(forms.ModelForm):
     class Meta:
         # Указываем модель, на основе которой должна строиться форма.
         model = Post
-        fields = "__all__"
+        fields = ('title', 'text', 'pub_date', 'category', 'location')
         # Указываем, что надо отобразить все поля.
         widgets = {
             'pub_date': forms.DateInput(attrs={'type': 'date'})}
