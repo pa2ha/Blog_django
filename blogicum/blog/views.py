@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from blog.models import Post, Comment
+from blog.models import Post, Comment, Category
 from django.views.generic import (
     CreateView, DeleteView, ListView, UpdateView
 )
@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CongratulationForm, PostForm
 from django.utils import timezone
+from django.http import Http404
 
 
 class index(ListView):
@@ -128,9 +129,22 @@ class category_posts(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_published=True)
+        category_slug = self.kwargs['category_slug']
+        category = get_object_or_404(Category, slug=category_slug)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(is_published=True, category=category)
         queryset = queryset.exclude(category__is_published=False)
+        queryset = queryset.filter(pub_date__lte=timezone.now())
         return queryset
+
+    def dispatch(self, request, *args, **kwargs):
+        category_slug = self.kwargs['category_slug']
+        category = get_object_or_404(Category, slug=category_slug)
+
+        if not category.is_published:
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class profile_view(LoginRequiredMixin, ListView):
@@ -141,12 +155,11 @@ class profile_view(LoginRequiredMixin, ListView):
     def get_queryset(self):
         username = self.kwargs['username']
         user = User.objects.get(username=username)
-        return super().get_queryset().filter(author=user)
+        return super().get_queryset().filter(author=user).order_by('-pub_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         username = self.kwargs['username']
         user = User.objects.get(username=username)
         context['profile'] = user
-
         return context
