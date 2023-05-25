@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from blog.models import Post, Comment, Category
+from blog.models import Post, CommentModel, Category
 from django.views.generic import (
     CreateView, DeleteView, ListView, UpdateView, DetailView
 )
@@ -113,7 +113,7 @@ def add_comment(request, pk):
 
 
 def edit_comment(request, post_id, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
+    comment = get_object_or_404(CommentModel, id=comment_id)
     if request.method == 'POST':
         form = CongratulationForm(request.POST, instance=comment)
         if form.is_valid():
@@ -127,7 +127,7 @@ def edit_comment(request, post_id, comment_id):
 
 
 def delete_comment(request, post_id, comment_id):
-    comment = get_object_or_404(Comment, pk=comment_id)
+    comment = get_object_or_404(CommentModel, pk=comment_id)
 
     if request.method == 'POST' and request.user == comment.author:
         comment.delete()

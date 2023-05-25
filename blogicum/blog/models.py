@@ -1,18 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from datetime import datetime
+
+
+from django.db.models import ForeignKey
 from django.urls import reverse
 
+from blog.utils import PublishedPostManager
+
 User = get_user_model()
-
-
-class PublishedPostManager(models.Manager):
-    def get_queryset(self):
-        now = datetime.now()
-        return super().get_queryset().filter(
-            is_published=True,
-            pub_date__lte=now
-        )
 
 
 class BaseModel(models.Model):
@@ -112,7 +107,7 @@ class Post(BaseModel):
         return reverse('blog:post_detail', args=[self.pk])
 
 
-class Comment(models.Model):
+class CommentModel(models.Model):
     text = models.TextField('Текст поздравления')
     post = models.ForeignKey(
         Post,
