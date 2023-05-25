@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from blog.models import Post, Comment, Category
 from django.views.generic import (
-    CreateView, DeleteView, ListView, UpdateView
+    CreateView, DeleteView, ListView, UpdateView, DetailView
 )
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
@@ -62,23 +62,30 @@ class edit_profile(UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
 
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    comments = post.comments.all()
+class post_detail(DetailView):
+    model = Post
+    template_name = 'blog/detail.html'
+    context_object_name = 'post'
 
-    if request.method == 'POST':
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CongratulationForm()
+        context['comments'] = self.object.comments.select_related('author')
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
         form = CongratulationForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
-            comment.post = post
+            comment.post = self.object
             comment.author = request.user
             comment.save()
-            return redirect('blog:post_detail', pk=post.pk)
-    else:
-        form = CongratulationForm()
-
-    return render(request, 'blog/detail.html',
-                  {'post': post, 'comments': comments, 'form': form})
+            return redirect('blog:post_detail', pk=self.object.pk)
+        else:
+            context = self.get_context_data()
+            context['form'] = form
+            return self.render_to_response(context)
 
 
 def add_comment(request, pk):
