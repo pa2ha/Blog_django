@@ -46,7 +46,8 @@ def test_custom_err_handlers(client):
                     if substring in pattern_as_str:
                         results.append(pattern)
                 elif isinstance(pattern, URLResolver):
-                    search_patterns(head + str(pattern.pattern), pattern.url_patterns)
+                    search_patterns(head + str(pattern.pattern), 
+                                    pattern.url_patterns)
             return results
 
         search_patterns(head='', patterns=resolver.url_patterns)
@@ -77,7 +78,6 @@ def test_custom_err_handlers(client):
         assert os.path.isfile(fpath.resolve()), (
             f'Убедитесь, что файл шаблона `{frpath}` существует.'
         )
-
 
 
 @pytest.mark.django_db
