@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CongratulationForm, PostForm
 from django.utils import timezone
 from django.http import Http404
+from django.urls import reverse
 
 
 class index(ListView):
@@ -56,15 +57,16 @@ class delete_post(DeleteView, LoginRequiredMixin):
 
 class edit_profile(UpdateView):
     model = User
-    template_name = 'blog/profile.html'
+    template_name = 'blog/edit_profile.html'
     fields = '__all__'
-    success_url = reverse_lazy('profile')
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
 
         return super().dispatch(request, *args, **kwargs)
+    def get_success_url(self):
+        return reverse('blog:profile', kwargs={'username': self.request.user.username})
 
 
 class post_detail(DetailView):
