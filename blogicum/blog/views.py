@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from blog.models import Post, CommentModel, Category
+from blog.models import Post, Comment, Category
 from django.views.generic import (
     CreateView, DeleteView, ListView, UpdateView, DetailView
 )
@@ -70,7 +70,7 @@ class edit_profile(UpdateView):
         return reverse('blog:profile',
                        kwargs={'username': self.request.user.username})
 
-
+    
 class post_detail(DetailView):
     model = Post
     template_name = 'blog/detail.html'
@@ -113,7 +113,7 @@ def add_comment(request, pk):
 
 
 def edit_comment(request, post_id, comment_id):
-    comment = get_object_or_404(CommentModel, id=comment_id)
+    comment = get_object_or_404(Comment, id=comment_id)
     if request.method == 'POST':
         form = CongratulationForm(request.POST, instance=comment)
         if form.is_valid():

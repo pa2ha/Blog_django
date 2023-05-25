@@ -112,7 +112,7 @@ class Post(BaseModel):
         return reverse('blog:post_detail', args=[self.pk])
 
 
-class CommentModel(models.Model):
+class Comment(models.Model):
     text = models.TextField('Текст поздравления')
     post = models.ForeignKey(
         Post,

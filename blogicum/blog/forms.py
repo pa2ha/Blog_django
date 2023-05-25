@@ -1,10 +1,10 @@
 from django import forms
-from .models import CommentModel, Post
+from .models import Comment, Post
 
 
 class CongratulationForm(forms.ModelForm):
     class Meta:
-        model = CommentModel
+        model = Comment
         fields = ('text',)
 
 
