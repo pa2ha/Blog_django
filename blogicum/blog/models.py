@@ -37,7 +37,7 @@ class Category(BaseModel):
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
-        )
+    )
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
         unique=True,
