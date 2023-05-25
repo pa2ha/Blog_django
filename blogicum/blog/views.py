@@ -133,6 +133,7 @@ class category_posts(ListView):
         queryset = queryset.filter(is_published=True, category=category)
         queryset = queryset.exclude(category__is_published=False)
         queryset = queryset.filter(pub_date__lte=timezone.now())
+        queryset = queryset.order_by('-pub_date')
         return queryset
 
     def dispatch(self, request, *args, **kwargs):
