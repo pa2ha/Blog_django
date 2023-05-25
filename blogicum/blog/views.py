@@ -70,7 +70,7 @@ class edit_profile(UpdateView):
         return reverse('blog:profile',
                        kwargs={'username': self.request.user.username})
 
-    
+
 class post_detail(DetailView):
     model = Post
     template_name = 'blog/detail.html'
@@ -127,7 +127,7 @@ def edit_comment(request, post_id, comment_id):
 
 
 def delete_comment(request, post_id, comment_id):
-    comment = get_object_or_404(CommentModel, pk=comment_id)
+    comment = get_object_or_404(Comment, pk=comment_id)
 
     if request.method == 'POST' and request.user == comment.author:
         comment.delete()
