@@ -1,15 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from blog.models import Post, Comment
 from django.views.generic import (
-    CreateView, DeleteView, DetailView, ListView, UpdateView
+    CreateView, DeleteView, ListView, UpdateView
 )
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CongratulationForm, PostForm
 from django.utils import timezone
-from django.contrib.auth.mixins import LoginRequiredMixin
-
 
 
 class index(ListView):
@@ -17,13 +15,12 @@ class index(ListView):
     template_name = 'blog/index.html'
     paginate_by = 10
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(is_published=True, pub_date__lte=timezone.now(), category__is_published=True)
+        queryset = queryset.filter(is_published=True,
+                                   pub_date__lte=timezone.now(),
+                                   category__is_published=True)
         return queryset
-
-
 
 
 class create_post(CreateView, LoginRequiredMixin):
@@ -32,12 +29,11 @@ class create_post(CreateView, LoginRequiredMixin):
     template_name = 'blog/create.html'
 
 
-
-class edit_post(UpdateView,LoginRequiredMixin):
+class edit_post(UpdateView, LoginRequiredMixin):
     model = Post
     template_name = 'blog/create.html'
     fields = '__all__'
-    
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             # Обработка случая, когда пользователь не авторизован
@@ -46,13 +42,12 @@ class edit_post(UpdateView,LoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-
 class delete_post(DeleteView, LoginRequiredMixin):
     model = Post
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:index')
 
-        
+
 class edit_profile(UpdateView):
     model = User
     template_name = 'blog/profile.html'
@@ -60,9 +55,8 @@ class edit_profile(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            # Если пользователь не авторизован, перенаправляем на страницу входа
             return redirect('login')
-        
+
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -81,8 +75,8 @@ def post_detail(request, pk):
     else:
         form = CongratulationForm()
 
-    return render(request, 'blog/detail.html', {'post': post, 'comments': comments, 'form': form})
-
+    return render(request, 'blog/detail.html',
+                  {'post': post, 'comments': comments, 'form': form})
 
 
 def add_comment(request, pk):
@@ -99,7 +93,8 @@ def add_comment(request, pk):
     else:
         form = CongratulationForm()
 
-    return render(request, 'blog/add_comment.html', {'post': post, 'form': form})
+    return render(request, 'blog/add_comment.html',
+                  {'post': post, 'form': form})
 
 
 def edit_comment(request, post_id, comment_id):
@@ -111,8 +106,9 @@ def edit_comment(request, post_id, comment_id):
             return redirect('blog:post_detail', pk=post_id)
     else:
         form = CongratulationForm(instance=comment)
-    
-    return render(request, 'blog/edit_comment.html', {'form': form, 'comment': comment})
+
+    return render(request, 'blog/edit_comment.html',
+                  {'form': form, 'comment': comment})
 
 
 def delete_comment(request, post_id, comment_id):
@@ -122,13 +118,8 @@ def delete_comment(request, post_id, comment_id):
         comment.delete()
         return redirect('blog:post_detail', pk=post_id)
 
-    return render(request, 'blog/confirm_delete_comment.html', {'comment': comment})
-
-
-
-
-
-
+    return render(request, 'blog/confirm_delete_comment.html',
+                  {'comment': comment})
 
 
 class category_posts(ListView):
@@ -140,9 +131,9 @@ class category_posts(ListView):
         queryset = super().get_queryset().filter(is_published=True)
         queryset = queryset.exclude(category__is_published=False)
         return queryset
-    
 
-class profile_view(LoginRequiredMixin,ListView):
+
+class profile_view(LoginRequiredMixin, ListView):
     model = Post
     template_name = 'blog/profile.html'
     paginate_by = 10
@@ -157,5 +148,5 @@ class profile_view(LoginRequiredMixin,ListView):
         username = self.kwargs['username']
         user = User.objects.get(username=username)
         context['profile'] = user
-        
+
         return context

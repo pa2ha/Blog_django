@@ -87,9 +87,9 @@ DATABASES = {
     }
 }
 
-INTERNAL_IPS = [    
+INTERNAL_IPS = [
     '127.0.0.1',
-] 
+]
 
 
 # Password validation
@@ -139,9 +139,9 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_FAILURE_VIEW = 'pages.views.csrf_failure' 
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 
-MEDIA_ROOT = BASE_DIR / 'media' 
+MEDIA_ROOT = BASE_DIR / 'media'
 
 TEMPLATES_DIR = BASE_DIR / 'templates'
 

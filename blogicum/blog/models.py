@@ -64,7 +64,7 @@ class Location(BaseModel):
     class Meta:
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
-    
+
     def __str__(self):
         return self.name
 
@@ -104,15 +104,13 @@ class Post(BaseModel):
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
-        
 
     def __str__(self):
         return self.title
-    
 
     def get_absolute_url(self):
         return reverse('blog:post_detail', args=[self.pk])
-    
+
 
 class Comment(models.Model):
     text = models.TextField('Текст поздравления')
@@ -125,4 +123,4 @@ class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ('created_at',) 
+        ordering = ('created_at',)

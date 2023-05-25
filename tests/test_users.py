@@ -22,7 +22,6 @@ class ManageProfileLinksException(Exception):
 
 @pytest.mark.django_db
 def test_custom_err_handlers(client):
-
     try:
         from blogicum import urls as blogicum_urls
     except Exception:
