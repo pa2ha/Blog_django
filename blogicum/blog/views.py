@@ -10,6 +10,7 @@ from .forms import CongratulationForm, PostForm
 from django.utils import timezone
 from django.http import Http404
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 
 class index(ListView):
@@ -97,6 +98,7 @@ class post_detail(DetailView):
             return self.render_to_response(context)
 
 
+@login_required
 def add_comment(request, pk):
     post = get_object_or_404(Post, pk=pk)
 

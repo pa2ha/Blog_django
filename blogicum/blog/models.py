@@ -1,11 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
-
-from django.db.models import ForeignKey
 from django.urls import reverse
-
-from blog.utils import PublishedPostManager
 
 User = get_user_model()
 
@@ -65,8 +60,6 @@ class Location(BaseModel):
 
 
 class Post(BaseModel):
-    objects = models.Manager()
-    published = PublishedPostManager()
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
