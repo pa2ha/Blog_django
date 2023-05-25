@@ -21,6 +21,7 @@ class index(ListView):
         queryset = queryset.filter(is_published=True,
                                    pub_date__lte=timezone.now(),
                                    category__is_published=True)
+        queryset = queryset.order_by('-pub_date')
         return queryset
 
 
@@ -93,9 +94,6 @@ def add_comment(request, pk):
             return redirect('blog:post_detail', pk=post.pk)
     else:
         form = CongratulationForm()
-
-    return render(request, 'blog/add_comment.html',
-                  {'post': post, 'form': form})
 
 
 def edit_comment(request, post_id, comment_id):
