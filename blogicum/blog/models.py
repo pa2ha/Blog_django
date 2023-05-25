@@ -12,18 +12,18 @@ class PublishedPostManager(models.Manager):
         return super().get_queryset().filter(
             is_published=True,
             pub_date__lte=now
-            )
+        )
 
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Добавлено'
-        )
+    )
     is_published = models.BooleanField(
         default=True, verbose_name='Опубликовано',
         help_text="Снимите галочку, чтобы скрыть публикацию."
-        )
+    )
 
     class Meta:
         # Эта строка объявляет модель абстрактной:
@@ -45,7 +45,7 @@ class Category(BaseModel):
         help_text="Идентификатор страницы для URL; "
         "разрешены символы латиницы, цифры, дефис и подчёркивание."
 
-        )
+    )
 
     class Meta:
         verbose_name = 'категория'
@@ -59,7 +59,7 @@ class Location(BaseModel):
     name = models.CharField(
         max_length=256,
         verbose_name='Название места'
-        )
+    )
 
     class Meta:
         verbose_name = 'местоположение'
@@ -75,7 +75,7 @@ class Post(BaseModel):
     title = models.CharField(
         max_length=256,
         verbose_name='Заголовок'
-        )
+    )
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
