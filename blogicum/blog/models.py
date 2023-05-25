@@ -112,10 +112,10 @@ class Post(BaseModel):
         return reverse('blog:post_detail', args=[self.pk])
 
 
-class Comment(models.Model):
+class CommentModel(models.Model):
     text = models.TextField('Текст поздравления')
     post = models.ForeignKey(
-        Post,
+        'blog.Post',
         on_delete=models.CASCADE,
         related_name='comments',
     )
