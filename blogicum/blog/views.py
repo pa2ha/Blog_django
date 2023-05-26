@@ -157,8 +157,6 @@ def delete_comment(request, post_id, comment_id):
                   {'comment': comment})
 
 
-
-
 def post_detail(request, id):
     template = 'blog/detail.html'
     post = get_object_or_404(Post.is_published.select_related('category'),
