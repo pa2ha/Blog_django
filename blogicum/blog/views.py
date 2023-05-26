@@ -64,7 +64,7 @@ class create_post(CreateView, LoginRequiredMixin):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:detail',)
+    success_url = reverse_lazy('blog:post_detail',)
 
     def form_valid(self, form):
         if self.request.user.is_authenticated:
@@ -100,8 +100,7 @@ class edit_post(UpdateView, LoginRequiredMixin):
 class delete_post(DeleteView, LoginRequiredMixin):
     model = Post
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:index')
-    success_url = reverse_lazy('blog:profile',)
+    success_url = reverse_lazy('blog:profile')
 
 
 class post_view(DetailView):
@@ -135,19 +134,15 @@ class add_comment(CreateView, LoginRequiredMixin):
                             kwargs={'pk': self.kwargs['pk']})
 
 
-@login_required
-def edit_comment(request, post_id, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
-    if request.method == 'POST':
-        form = CommentForm(request.POST, instance=comment)
-        if form.is_valid():
-            form.save()
-            return redirect('blog:post_detail', pk=post_id)
-    else:
-        form = CommentForm(instance=comment)
+class edit_comment(UpdateView, LoginRequiredMixin):
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/edit_comment.html'
+    context_object_name = 'comment'
 
-    return render(request, 'blog/edit_comment.html',
-                  {'form': form, 'comment': comment})
+    def get_success_url(self):
+        return reverse('blog:post_detail',
+                       kwargs={'pk': self.kwargs['post_id']})
 
 
 @login_required
@@ -162,11 +157,6 @@ def delete_comment(request, post_id, comment_id):
                   {'comment': comment})
 
 
-def index1(request):
-    template = 'blog/index.html'
-    post = Post.objects.filter(is_published=True, category__is_published=True)
-    context = {'post_list': post}
-    return render(request, template, context)
 
 
 def post_detail(request, id):
