@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from blog.models import Post, Category, Comment, User
 from django.views.generic import (
     CreateView, DeleteView, ListView, UpdateView, DetailView)
@@ -9,24 +9,19 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
 
 
-class index(ListView):
+class Index(ListView):
     model = Post
     template_name = 'blog/index.html'
     paginate_by = 10
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(is_published=True,
+    queryset = Post.objects.filter(is_published=True,
                                    pub_date__lte=timezone.now(),
-                                   category__is_published=True)
-        queryset = queryset.order_by('-pub_date')
-        return queryset
+                                   category__is_published=True
+                                   ).order_by('-pub_date')
 
 
-class profile(ListView):
+class Profile(ListView):
     model = Post
     template_name = 'blog/profile.html'
     paginate_by = 10
@@ -44,7 +39,7 @@ class profile(ListView):
         return context
 
 
-class edit_profile(UpdateView, LoginRequiredMixin):
+class Edit_profile(UpdateView, LoginRequiredMixin):
     model = User
     template_name = 'blog/edit_profile.html'
     form_class = UserForm
@@ -60,7 +55,7 @@ class edit_profile(UpdateView, LoginRequiredMixin):
                        kwargs={'username': self.object.username})
 
 
-class create_post(CreateView, LoginRequiredMixin):
+class Create_post(CreateView, LoginRequiredMixin):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
@@ -79,7 +74,7 @@ class create_post(CreateView, LoginRequiredMixin):
         return success_url
 
 
-class edit_post(LoginRequiredMixin, UpdateView):
+class Edit_post(LoginRequiredMixin, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     fields = '__all__'
@@ -102,18 +97,21 @@ class edit_post(LoginRequiredMixin, UpdateView):
         return reverse('blog:profile', kwargs={'username': username})
 
 
-@login_required
-def delete_post(request, post_id):
-    post = get_object_or_404(Post, pk=post_id, author=request.user)
+class Delete_post(LoginRequiredMixin, DeleteView):
+    model = Post
+    template_name = 'blog/create.html'
 
-    if request.method == 'POST':
-        post.delete()
-        return redirect('blog:profile', username=request.user.username)
+    def dispatch(self, request, *args, **kwargs):
+        Post = self.get_object()
+        if Post.author != request.user:
+            return redirect('blog:index')
+        return super().dispatch(request, *args, **kwargs)
 
-    return render(request, 'blog/create.html', {'post': post})
+    def get_success_url(self):
+        return reverse('blog:index')
 
 
-class post_view(DetailView):
+class Post_view(DetailView):
     model = Post
     template_name = 'blog/detail.html'
     context_object_name = 'post'
@@ -125,7 +123,7 @@ class post_view(DetailView):
         return context
 
 
-class add_comment(CreateView, LoginRequiredMixin):
+class Add_comment(CreateView, LoginRequiredMixin):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/add_comment.html'
@@ -144,7 +142,7 @@ class add_comment(CreateView, LoginRequiredMixin):
                             kwargs={'pk': self.kwargs['pk']})
 
 
-class edit_comment(UpdateView, LoginRequiredMixin):
+class Edit_comment(UpdateView, LoginRequiredMixin):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/edit_comment.html'
@@ -163,7 +161,7 @@ class edit_comment(UpdateView, LoginRequiredMixin):
                             kwargs={'pk': self.object.post.pk})
 
 
-class delete_comment(LoginRequiredMixin, DeleteView):
+class Delete_comment(LoginRequiredMixin, DeleteView):
     model = Comment
     template_name = 'blog/confirm_delete_comment.html'
     context_object_name = 'comment'
@@ -179,15 +177,7 @@ class delete_comment(LoginRequiredMixin, DeleteView):
         return reverse('blog:post_detail', kwargs={'pk': comment.post.pk})
 
 
-def post_detail(request, id):
-    template = 'blog/detail.html'
-    post = get_object_or_404(Post.is_published.select_related('category'),
-                             pk=id, category__is_published=True)
-    context = {'post': post}
-    return render(request, template, context)
-
-
-class category_posts(ListView):
+class Category_posts(ListView):
     model = Post
     template_name = 'blog/category.html'
     paginate_by = 10
@@ -195,11 +185,10 @@ class category_posts(ListView):
     def get_queryset(self):
         category_slug = self.kwargs['category_slug']
         category = get_object_or_404(Category, slug=category_slug)
-        queryset = super().get_queryset()
-        queryset = queryset.filter(is_published=True, category=category)
-        queryset = queryset.exclude(category__is_published=False)
-        queryset = queryset.filter(pub_date__lte=timezone.now())
-        queryset = queryset.order_by('-pub_date')
+        queryset = Post.objects.filter(
+            is_published=True, category=category,
+            pub_date__lte=timezone.now()).exclude(
+            category__is_published=False).order_by('-pub_date')
         return queryset
 
     def dispatch(self, request, *args, **kwargs):
