@@ -140,9 +140,15 @@ class edit_comment(UpdateView, LoginRequiredMixin):
     template_name = 'blog/edit_comment.html'
     context_object_name = 'comment'
 
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.author != request.user:
+            return reverse('blog:post_detail',
+                           kwargs={'pk': self.object.post.pk})
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
-        return reverse('blog:post_detail',
-                       kwargs={'pk': self.kwargs['post_id']})
+        return reverse('blog:post_detail', kwargs={'pk': self.object.post.pk})
 
 
 @login_required
