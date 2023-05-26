@@ -75,7 +75,7 @@ class create_post(CreateView, LoginRequiredMixin):
 
     def get_success_url(self):
         username = self.request.user.username
-        success_url = reverse_lazy('blog:profile',
+        success_url = reverse_lazy('blog:detail',
                                    kwargs={'username': username})
         return success_url
 
