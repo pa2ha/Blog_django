@@ -4,7 +4,6 @@ from django.views.generic import (
     CreateView, DeleteView, ListView, UpdateView, DetailView)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import PostForm, CommentForm
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
@@ -64,7 +63,6 @@ class create_post(CreateView, LoginRequiredMixin):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:post_detail',)
 
     def form_valid(self, form):
         if self.request.user.is_authenticated:
@@ -75,24 +73,28 @@ class create_post(CreateView, LoginRequiredMixin):
 
     def get_success_url(self):
         username = self.request.user.username
-        success_url = reverse_lazy('blog:detail',
+        success_url = reverse_lazy('blog:profile',
                                    kwargs={'username': username})
         return success_url
 
 
-class edit_post(UpdateView, LoginRequiredMixin):
+class edit_post(LoginRequiredMixin, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     fields = '__all__'
 
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return self.handle_no_permission()
+            raise HttpResponse
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         username = self.request.user.username
-        success_url = reverse_lazy('blog:detail',
+        success_url = reverse_lazy('blog:profile',
                                    kwargs={'username': username})
         return success_url
 
@@ -140,21 +142,33 @@ class edit_comment(UpdateView, LoginRequiredMixin):
     template_name = 'blog/edit_comment.html'
     context_object_name = 'comment'
 
+    def dispatch(self, request, *args, **kwargs):
+        comment = self.get_object()
+        if comment.author != request.user:
+            return HttpResponseRedirect(
+                reverse_lazy('blog:post_detail',
+                             kwargs={'pk': comment.post.pk}))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
-        return reverse('blog:post_detail',
-                       kwargs={'pk': self.kwargs['post_id']})
+        return reverse_lazy('blog:post_detail',
+                            kwargs={'pk': self.object.post.pk})
 
 
-@login_required
-def delete_comment(request, post_id, comment_id):
-    comment = get_object_or_404(Comment, pk=comment_id)
+class delete_comment(LoginRequiredMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/confirm_delete_comment.html'
+    context_object_name = 'comment'
 
-    if request.method == 'POST' and request.user == comment.author:
-        comment.delete()
-        return redirect('blog:post_detail', pk=post_id)
+    def dispatch(self, request, *args, **kwargs):
+        comment = self.get_object()
+        if comment.author != request.user:
+            return redirect('blog:post_detail', pk=comment.post.pk)
+        return super().dispatch(request, *args, **kwargs)
 
-    return render(request, 'blog/confirm_delete_comment.html',
-                  {'comment': comment})
+    def get_success_url(self):
+        comment = self.get_object()
+        return reverse('blog:post_detail', kwargs={'pk': comment.post.pk})
 
 
 def post_detail(request, id):

@@ -5,10 +5,10 @@
     <h3>Удаление комментария</h3>
     <p>Вы действительно хотите удалить этот комментарий?</p>
     <p>{{ comment.text }}</p>
-    <form method="post" action="{% url 'blog:delete_comment' post_id=comment.post.id comment_id=comment.id %}">
+    <form method="post" action="{% url 'blog:delete_comment' post_id=comment.post.pk pk=comment.pk %}">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">Удалить</button>
-      <a href="{% url 'blog:post_detail' pk=comment.post.id %}" class="btn btn-secondary">Отмена</a>
+      <a href="{% url 'blog:post_detail' pk=comment.post.pk %}" class="btn btn-secondary">Отмена</a>
     </form>
   </div>
 {% endblock %}
