@@ -12,7 +12,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('pages/', include('pages.urls', namespace='stat_pages')),
     path('', include('blog.urls', namespace='user_posting')),
-    path('auth/', include('django.contrib.auth.urls')),
+    path('auth/', include('django.contrib.auth.urls'), name='login'),
     path(
         'auth/registration/',
         CreateView.as_view(

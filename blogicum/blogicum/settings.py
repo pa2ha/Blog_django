@@ -1,3 +1,4 @@
+from django.urls import reverse_lazy
 """
 Django settings for blogicum project.
 
@@ -145,7 +146,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 TEMPLATES_DIR = BASE_DIR / 'templates'
 
-LOGIN_URL = 'auth/login/'
+LOGIN_URL = reverse_lazy('login')
 
 LOGIN_REDIRECT_URL = '/'
 

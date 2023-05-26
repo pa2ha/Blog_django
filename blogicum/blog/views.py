@@ -108,9 +108,9 @@ def delete_post(request, post_id):
 
     if request.method == 'POST':
         post.delete()
-        return redirect('posts_list')
+        return redirect('blog:profile', username=request.user.username)
 
-    return render(request, 'delete_post.html', {'post': post})
+    return render(request, 'blog/create.html', {'post': post})
 
 
 class post_view(DetailView):
