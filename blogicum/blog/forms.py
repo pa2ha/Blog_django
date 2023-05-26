@@ -1,10 +1,10 @@
 from django import forms
-from .models import CommentModel, Post
+from .models import Comment, Post
 
 
-class CongratulationForm(forms.ModelForm):
+class CommentForm(forms.ModelForm):
     class Meta:
-        model = CommentModel
+        model = Comment
         fields = ('text',)
 
 
@@ -15,7 +15,7 @@ class PostForm(forms.ModelForm):
     class Meta:
         # Указываем модель, на основе которой должна строиться форма.
         model = Post
-        fields = ('title', 'text', 'pub_date', 'category', 'location', 'image')
+        exclude = ('is_published', 'author')
         # Указываем, что надо отобразить все поля.
         widgets = {
             'pub_date': forms.DateInput(attrs={'type': 'date'})}
