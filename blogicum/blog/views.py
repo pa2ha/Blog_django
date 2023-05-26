@@ -89,7 +89,9 @@ class edit_post(LoginRequiredMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            raise HttpResponse
+            post_id = self.kwargs['pk']
+            return HttpResponseRedirect(reverse_lazy('blog:post_detail',
+                                                     args=[post_id]))
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -102,7 +104,12 @@ class edit_post(LoginRequiredMixin, UpdateView):
 class delete_post(DeleteView, LoginRequiredMixin):
     model = Post
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:profile')
+
+    def get_success_url(self):
+        username = self.request.user.username
+        success_url = reverse_lazy('blog:profile',
+                                   kwargs={'username': username})
+        return success_url
 
 
 class post_view(DetailView):
