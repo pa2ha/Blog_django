@@ -1,5 +1,5 @@
 from django import forms
-from .models import Comment, Post
+from .models import Comment, Post, User
 
 
 class CommentForm(forms.ModelForm):
@@ -19,3 +19,9 @@ class PostForm(forms.ModelForm):
         # Указываем, что надо отобразить все поля.
         widgets = {
             'pub_date': forms.DateInput(attrs={'type': 'date'})}
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'last_name', 'first_name')

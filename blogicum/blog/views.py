@@ -3,7 +3,7 @@ from blog.models import Post, Category, Comment, User
 from django.views.generic import (
     CreateView, DeleteView, ListView, UpdateView, DetailView)
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, UserForm
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
@@ -47,7 +47,7 @@ class profile(ListView):
 class edit_profile(UpdateView, LoginRequiredMixin):
     model = User
     template_name = 'blog/edit_profile.html'
-    fields = '__all__'
+    form_class = UserForm
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
