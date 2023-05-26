@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 
 class index(ListView):
@@ -82,34 +83,34 @@ class edit_post(LoginRequiredMixin, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     fields = '__all__'
+    pk_url_kwarg = 'pk'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            post_id = self.kwargs['pk']
-            return HttpResponseRedirect(reverse_lazy('blog:post_detail',
-                                                     args=[post_id]))
+        post = self.get_object()
+        if post.author != request.user:
+            return HttpResponseRedirect(
+                reverse('blog:post_detail', kwargs={'pk': post.pk})
+            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         username = self.request.user.username
-        success_url = reverse_lazy('blog:profile',
-                                   kwargs={'username': username})
-        return success_url
+        return reverse('blog:profile', kwargs={'username': username})
 
 
-class delete_post(DeleteView, LoginRequiredMixin):
-    model = Post
-    template_name = 'blog/create.html'
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, pk=post_id, author=request.user)
 
-    def get_success_url(self):
-        username = self.request.user.username
-        success_url = reverse_lazy('blog:profile',
-                                   kwargs={'username': username})
-        return success_url
+    if request.method == 'POST':
+        post.delete()
+        return redirect('posts_list')
+
+    return render(request, 'delete_post.html', {'post': post})
 
 
 class post_view(DetailView):
