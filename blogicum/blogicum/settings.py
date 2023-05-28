@@ -1,4 +1,5 @@
 from django.urls import reverse_lazy
+
 """
 Django settings for blogicum project.
 

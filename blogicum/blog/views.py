@@ -1,14 +1,14 @@
-from django.shortcuts import get_object_or_404
-from blog.models import Post, Category, Comment, User
-from django.views.generic import (
-    CreateView, DeleteView, ListView, UpdateView, DetailView)
+from blog.models import Category, Comment, Post, User
+
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import PostForm, CommentForm, UserForm
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
+
+from .forms import CommentForm, PostForm, UserForm
 
 
 class Index(ListView):
@@ -39,7 +39,7 @@ class Profile(ListView):
         return context
 
 
-class Edit_profile(UpdateView, LoginRequiredMixin):
+class EditProfile(UpdateView, LoginRequiredMixin):
     model = User
     template_name = 'blog/edit_profile.html'
     form_class = UserForm
@@ -55,7 +55,7 @@ class Edit_profile(UpdateView, LoginRequiredMixin):
                        kwargs={'username': self.object.username})
 
 
-class Create_post(CreateView, LoginRequiredMixin):
+class CreatePost(CreateView, LoginRequiredMixin):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
@@ -64,8 +64,7 @@ class Create_post(CreateView, LoginRequiredMixin):
         if self.request.user.is_authenticated:
             form.instance.author = self.request.user
             return super().form_valid(form)
-        else:
-            return redirect('login')
+        return redirect('login')
 
     def get_success_url(self):
         username = self.request.user.username
@@ -74,7 +73,7 @@ class Create_post(CreateView, LoginRequiredMixin):
         return success_url
 
 
-class Edit_post(LoginRequiredMixin, UpdateView):
+class EditPost(LoginRequiredMixin, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     fields = '__all__'
@@ -97,7 +96,7 @@ class Edit_post(LoginRequiredMixin, UpdateView):
         return reverse('blog:profile', kwargs={'username': username})
 
 
-class Delete_post(LoginRequiredMixin, DeleteView):
+class DeletePost(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'blog/create.html'
 
@@ -111,7 +110,7 @@ class Delete_post(LoginRequiredMixin, DeleteView):
         return reverse('blog:index')
 
 
-class Post_view(DetailView):
+class PostDetail(DetailView):
     model = Post
     template_name = 'blog/detail.html'
     context_object_name = 'post'
@@ -123,7 +122,7 @@ class Post_view(DetailView):
         return context
 
 
-class Add_comment(CreateView, LoginRequiredMixin):
+class AddComment(CreateView, LoginRequiredMixin):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/add_comment.html'
@@ -142,7 +141,7 @@ class Add_comment(CreateView, LoginRequiredMixin):
                             kwargs={'pk': self.kwargs['pk']})
 
 
-class Edit_comment(UpdateView, LoginRequiredMixin):
+class EditComment(UpdateView, LoginRequiredMixin):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/edit_comment.html'
@@ -161,7 +160,7 @@ class Edit_comment(UpdateView, LoginRequiredMixin):
                             kwargs={'pk': self.object.post.pk})
 
 
-class Delete_comment(LoginRequiredMixin, DeleteView):
+class DeleteComment(LoginRequiredMixin, DeleteView):
     model = Comment
     template_name = 'blog/confirm_delete_comment.html'
     context_object_name = 'comment'
@@ -177,7 +176,7 @@ class Delete_comment(LoginRequiredMixin, DeleteView):
         return reverse('blog:post_detail', kwargs={'pk': comment.post.pk})
 
 
-class Category_posts(ListView):
+class CategoryPosts(ListView):
     model = Post
     template_name = 'blog/category.html'
     paginate_by = 10
@@ -197,5 +196,4 @@ class Category_posts(ListView):
 
         if not category.is_published:
             return HttpResponse("Category is not published", status=404)
-
         return super().dispatch(request, *args, **kwargs)
